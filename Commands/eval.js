@@ -4,14 +4,16 @@ module.exports.command = {
     onCommand: async ({ client, msg, args, db, cfg, Permissions }) => {
         if (!cfg.owners.includes(msg.author.id)) return;
         if (!args[0]) return;
-        if (args.some(arg => arg === 'token' || arg === 'cfg')) return client.message('Bırakın lan beni ibneler', msg.channel.id, 5000);
+        if (args.some(arg => arg === "cfg")) return null;
         let code = args.join(' ');
         try {
-            let evaled = client.clean(await eval(code));
-            if (evaled.match(new RegExp(`${client.token}`, 'g'))) evaled.replace('token', 'NE_SANDIN_YARRAM').replace(cfg.token, 'NE_SANDIN_YARRAM');
-            msg.channel.send(`\`\`\`js\n${evaled.replace(cfg.token, 'NE_SANDIN_YARRAM')}\`\`\``);
-        } catch(e) {
-            msg.channel.send('```js\n' + e + '```');
+            const evaled = client.clean(await eval(code));
+            const RegEx = new RegExp(`${client.token}`);
+            const message = "?";
+            if (evaled.match(RegEx)) evaled.replace('token', message).replace(cfg.token, message);
+            msg.channel.send(`\`\`\`js\n${evaled.replace(cfg.token, message)}\`\`\``);
+        } catch (error) {
+            msg.channel.send('```js\n' + error + '```');
         };
     }
 };
