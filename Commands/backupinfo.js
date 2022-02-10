@@ -1,8 +1,6 @@
-const { Message } = require('discord.js');
-
 module.exports.command = {
     name: "backupinfo",
-    alias: ["bi", "backups"],
+    alias: ["bi", "backups", "backuplist", "backup-list"],
     onCommand: ({ msg, client, db, Permissions }) => {
         if (!msg.member.permissions.has(Permissions.FLAGS.MANAGE_ROLES)) return;
         const data = db.get(`backups_${msg.author.id}`);
@@ -11,7 +9,7 @@ module.exports.command = {
         client.embed(msg.channel, {
             embeds: [
                 {
-                    description: backupList.join('\n'),
+                    description: backupList.length > 0 ? backupList.join('\n') : "**Geçerli bir backup bulunamadı.**",
                     title: "``Sunucu Adı | Sunucu ID'si``",
                     timestamp: new Date(),
                     author: {
