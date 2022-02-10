@@ -6,9 +6,9 @@ module.exports.command = {
         if (!args[0] || isNaN(args[0])) return client.deleteableMessage("**Geçerli bir sunucu IDsi girmelisin.**", msg.channel, 5);
         const sunucuId = args[0];
 
-        const data = await db.get(`backups_${msg.author.id}_${sunucuId}_roles`);
-        const data2 = await db.get(`backups_${msg.author.id}_${sunucuId}_channels`);
-        const data3 = await db.get(`backups_${msg.author.id}_${sunucuId}_infos`);
+        const data = await db.get(`backups_${msg.author.id}.${sunucuId}.roles`);
+        const data2 = await db.get(`backups_${msg.author.id}.${sunucuId}.channels`);
+        const data3 = await db.get(`backups_${msg.author.id}.${sunucuId}.infos`);
 
         if (!data || !data2 || !data3) return client.deleteableMessage("**Geçerli bir backup bulunamadı.**", msg.channel, 5);
 
