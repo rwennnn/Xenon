@@ -19,10 +19,26 @@ new Client({ allowedMentions: {
     ]
 });
 
-console.clear();
 client.Commands = new Map();
 client.Aliases = new Map();
 
+fs.readdir('./Commands/', (err, files, komutlar = []) => {
+    if (err) return console.err(err.message);
+    console.warn('Komutlar yükleniyor.');
+    console.warn('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
+    console.log(files.length + ' komut yüklenecek.');
+    files.filter(file => file.endsWith('.js')).forEach(f => {
+        let prop = require(`./Commands/${f}`);
+        if (!prop.command || !prop.command.name || !prop.command.onCommand) return console.warn(f + ' klasöründe komutu çalıştıracak bir isim ya da fonksiyon olmadığı için komut yüklenemedi.');
+        client.Commands.set(prop.command.name, prop);
+        prop.command.alias.forEach(a => {
+            client.Aliases.set(a, prop.command.name);
+        });
+    });
+    for (var value of client.Commands.values()) komutlar.push(value.command.name);
+    console.log('[  \n  ' + komutlar.join(', ') + '\n]\n' + ' isimli komut(lar) yüklendi.');
+    console.warn('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
+});
 
 client.on('ready', () =>  {
     client.user.setStatus('idle');
@@ -31,7 +47,7 @@ client.on('ready', () =>  {
         ' adlı isimle ' +
         client.guilds.cache.get(cfg.sunucu).name +
         ' adlı sunucuda ' +
-        new Date().toLocaleDateString('tr-TR', { timeZone: "Asia/Istanbul" }) 
+        new Date().toLocaleString('tr-TR', { timeZone: "Asia/Istanbul" })
         + ' tarihinde giriş yaptım.'
     );
 });
@@ -44,8 +60,9 @@ client.sleep = function (ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 };
 
-client.deleteableEmbed = function (channel, object, time) {
-    channel.send(object).then(embed => setTimeout(() => embed.delete(), 1000*time))
+client.embed = function (channel, object, time) {
+    if (time) channel.send(object).then(embed => setTimeout(() => embed.delete(), 1000*time));
+    else channel.send(object);
 };
 
 client.clean = (text) => {
@@ -70,26 +87,16 @@ client.on("messageCreate", (msg) => {
         cmd = client.Commands.get(client.Aliases.get(command));
     };
     if (cmd) {
-        cmd.command.onCommand({ client: client, msg: msg, args: args, db: db, cfg: cfg, Permissions });
+        try {
+          cmd.command.onCommand({ client: client, msg: msg, args: args, db: db, cfg: cfg, Permissions });
+        } catch (e) { 
+            msg.channel.send(`**${msg.content} komutunda bir hata**:\n \`${e.message}\``);
+        };
     };
 });
 
-fs.readdir('./Commands/', (err, files, komutlar = []) => {
-    if (err) return console.err(err.message);
-    console.warn('Komutlar yükleniyor.');
-    console.warn('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
-    console.log(files.length + ' komut yüklenecek.');
-    files.filter(file => file.endsWith('.js')).forEach(f => {
-        let prop = require(`./Commands/${f}`);
-        if (!prop.command || !prop.command.name || !prop.command.onCommand) return console.warn(f + ' klasöründe komutu çalıştıracak bir isim ya da fonksiyon olmadığı için komut yüklenemedi.');
-        client.Commands.set(prop.command.name, prop);
-        prop.command.alias.forEach(a => {
-            client.Aliases.set(a, prop.command.name);
-        });
-    });
-    for (var value of client.Commands.values()) komutlar.push(value.command.name);
-    console.log('[  \n  ' + komutlar.join(', ') + '\n]\n' + ' isimli komut(lar) yüklendi.');
-    console.warn('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
-});
+process.on('uncaughtException', e => console.log(e.message));
+process.on('unhandledRejection', r => console.log(r.toString()));
+process.on('exit', () => console.log(new Date().toLocaleDateString("tr-TR", { timeZone: "Asia/Istanbul"}) + " bot bağlantısı kesildi." ));
 
 client.login(cfg.token);
