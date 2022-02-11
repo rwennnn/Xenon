@@ -24,12 +24,12 @@ client.Aliases = new Map();
 
 fs.readdir('./Commands/', (err, files, komutlar = []) => {
     if (err) return console.err(err.message);
-    console.warn('Komutlar yükleniyor.');
-    console.warn('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
+    console.log('Komutlar yükleniyor.');
+    console.log('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
     console.log(files.length + ' komut yüklenecek.');
     files.filter(file => file.endsWith('.js')).forEach(f => {
         let prop = require(`./Commands/${f}`);
-        if (!prop.command || !prop.command.name || !prop.command.onCommand) return console.warn(f + ' klasöründe komutu çalıştıracak bir isim ya da fonksiyon olmadığı için komut yüklenemedi.');
+        if (!prop.command || !prop.command.name || !prop.command.onCommand) return console.log(f + ' klasöründe komutu çalıştıracak bir isim ya da fonksiyon olmadığı için komut yüklenemedi.');
         client.Commands.set(prop.command.name, prop);
         prop.command.alias.forEach(a => {
             client.Aliases.set(a, prop.command.name);
@@ -37,7 +37,7 @@ fs.readdir('./Commands/', (err, files, komutlar = []) => {
     });
     for (var value of client.Commands.values()) komutlar.push(value.command.name);
     console.log('[  \n  ' + komutlar.join(', ') + '\n]\n' + ' isimli komut(lar) yüklendi.');
-    console.warn('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
+    console.log('▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬');
 });
 
 client.on('ready', () =>  {
