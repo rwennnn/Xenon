@@ -35,9 +35,8 @@ module.exports.command = {
                     reason: "Ren Backup"
             }).then(_newRole => {
                 const uyeler = data[i].members.filter(id => msg.guild.members.cache.get(id));
-                for (let j = 0; j < uyeler.length; j++) {
-                    msg.guild.members.cache.get(uyeler[j]).roles.add(_newRole.id);
-                };
+                for (let j = 0; j < uyeler.length; j++) 
+                    msg.guild.members.cache.get(uyeler[j]).roles.add(_newRole.id).catch();
             });
         };
 
@@ -53,16 +52,8 @@ module.exports.command = {
                 CHANNELS[i].permissionOverwrites.forEach(_permission => {
                     const role = msg.guild.roles.cache.find(r => r.name === _permission.name);
                     const rolId = role.name == '@everyone' ? msg.guild.id : role.id;
-                    _permission.allows.forEach(allow => {
-                        const Obj = {};
-                        Obj[allow] = true;
-                        _parent.permissionOverwrites.create(rolId, Obj);
-                    });
-                    _permission.denys.forEach(deny => {
-                        const Obj = {};
-                        Obj[deny] = false;
-                        _parent.permissionOverwrites.create(rolId, Obj);
-                    });
+                    _permission.allows.forEach(allow => _parent.permissionOverwrites.create(rolId, { [allow]: true }));
+                    _permission.denys.forEach(deny => _parent.permissionOverwrites.create(rolId, { [deny]: false }));
                 });
             });
         };
@@ -79,16 +70,8 @@ module.exports.command = {
                         const role = msg.guild.roles.cache.find(r => r.name === _permission.name);
                         if (!role || !role.name) return;
                         const rolId = role.name == '@everyone' ? msg.guild.id : role.id;
-                        _permission.allows.forEach(allow => {
-                            const Obj = {};
-                            Obj[allow] = true;
-                            ch.permissionOverwrites.create(rolId, Obj);
-                        });
-                        _permission.denys.forEach(deny => {
-                            const Obj = {};
-                            Obj[deny] = false;
-                            ch.permissionOverwrites.create(rolId, Obj);
-                        });
+                        _permission.allows.forEach(allow => ch.permissionOverwrites.create(rolId, { [allow]: true }));
+                        _permission.denys.forEach(deny =>  ch.permissionOverwrites.create(rolId, { [deny]: false }));
                     };
                 });
             });
